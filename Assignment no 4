@@ -1,72 +1,100 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd #reading
-import tensorflow as tf
----
-from sklearn.metrics import accuracy_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split                #model Selection and Scaling the data
-from tensorflow.keras import layers, losses
-from tensorflow.keras.datasets import fashion_mnist
-from tensorflow.keras.models import Model
----
-(x_train, _), (x_test, _)= fashion_mnist.load_data()
-x_train=x_train/255
-x_test=x_test/255
-print(x_train.shape)
-print(x_test.shape)
----
-latent_dim=64
-class Autoencoder(Model):
- def __init__(self, latent_dim):
-        super(Autoencoder, self).__init__()
-        self.latent_dim=latent_dim
-        self.encoder=tf.keras.Sequential([
-            layers.Flatten(),
-            layers,Dense(latent_dim, activation='relu'),
-    ])
-        self.decoder=tf.keras.Sequential([
-        layers.Dense(784,activation='sigmoid'),
-        layers.Reshape((28,28))
-    ])
-    
- def call(self, x):
-        encoded=self.encoder(x)
-        decoded=self.decoder(encoded)
-        return decoded
-        autoencoder=Autoencoder(latent_dim)
-        
- ---
- autoencoder.compile(optimizer='adam', loss=losses.MeanSquaredError())
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
-autoencoder.fit(x_train, x_train,
-                epochs=10,
-               shuffle=True,
-                validation_data=(x_test, x_test))
-  ------
-  
-  encoded_imgs=autoencoder.encoder(x_test).numpy()
-decoded_imgs=autoencoder.decoder(encoded_imgs).numpy()
+public class BerkeleyAlgorithm {
 
----
-n=10
-plt.figure(figsize=(20,4))
-for i in range(n):
-    #display original
-    ax=plt.subplot(2, n,i+1)
-    plt.imshow(x_test[i])
-    plt.title("Original")
-    plt.gray()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    
-    #display reconstruction
-    
-    ax=plt.subplot(2,n,i+1+n)
-    plt.imshow(decoded_imgs[i])
-    plt.title("Reconstructed")
-    plt.gray()
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-plt.show()
-    
-  
+    // Define the port number that will be used for communication
+    private static final int PORT = 1024;
+
+    public static void main(String[] args) throws Exception {
+
+        // Create a server socket to listen for incoming messages
+        ServerSocket serverSocket = new ServerSocket(PORT);
+
+        // Create a list to store the time differences for each node
+        List<Long> timeDiffs = new ArrayList<Long>();
+
+        // Create a new thread to handle the time requests from nodes
+        Thread timeServerThread = new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    try {
+                        // Wait for a node to connect and request the current time
+                        Socket clientSocket = serverSocket.accept();
+                        ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+
+                        // Read the current time from the node's request
+                        Date clientTime = (Date) in.readObject();
+
+                        // Send the current time to the node as a response
+                        ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+                        out.writeObject(new Date());
+
+                        // Calculate the time difference between the server and the node
+                        long timeDiff = (new Date().getTime() - clientTime.getTime()) / 2;
+                        timeDiffs.add(timeDiff);
+
+                        // Close the input/output streams and the socket
+                        in.close();
+                        out.close();
+                        clientSocket.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        timeServerThread.start();
+
+        // Create a new thread to periodically send time requests to the server
+        Thread timeClientThread = new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                    try {
+                        // Connect to the server and send a time request
+                        Socket socket = new Socket("localhost", PORT);
+                        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                        out.writeObject(new Date());
+
+                        // Read the current time from the server's response
+                        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                        Date serverTime = (Date) in.readObject();
+
+                        // Calculate the time difference between the node and the server
+                        long timeDiff = (serverTime.getTime() - new Date().getTime()) / 2;
+                        timeDiffs.add(timeDiff);
+
+                        // Close the input/output streams and the socket
+                        in.close();
+                        out.close();
+                        socket.close();
+
+                        // Wait for a short period of time before sending the next time request
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        timeClientThread.start();
+
+        // Wait for a sufficient number of time differences to be recorded
+        Thread.sleep(10000);
+
+        // Compute the average time difference and adjust the node's clock
+        long sumTimeDiff = 0;
+        for (Long timeDiff : timeDiffs) {
+            sumTimeDiff += timeDiff;
+        }
+        long avgTimeDiff = sumTimeDiff / timeDiffs.size();
+        System.out.println("Average time difference: " + avgTimeDiff);
+
+        // Adjust the node's clock by adding the average time difference
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MILLISECOND, (int) avgTimeDiff);
+        System.out.println("Adjusted time: " + calendar.getTime());
+    }
+}
