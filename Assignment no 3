@@ -1,98 +1,30 @@
-Image Classification :
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D,MaxPooling2D ,Dense,Flatten
-import numpy as np
-import matplotlib.pyplot as plt
-import random
+3.MPI
+Code :
 
----
-#Load Dataset
-X_train=np.loadtxt('C:/Users/priti/Desktop/Assignment_3/input.csv', delimiter =',')
-Y_train=np.loadtxt('C:/Users/priti/Desktop/Assignment_3/labels.csv',delimiter =',')
-X_test=np.loadtxt('C:/Users/priti/Desktop/Assignment_3/input_test.csv',delimiter =',')
-Y_test=np.loadtxt('C:/Users/priti/Desktop/Assignment_3/labels_test.csv', delimiter =',')
+#include <stdio.h>
+#include <mpi.h>
 
----
-#Reshaping appropriate size..removing comma
-X_train = X_train.reshape(len(X_train),100,100,3)
-Y_train= Y_train.reshape(len(Y_train),1)
+int main(int argc, char** argv) {
+    int rank, size;
+    int arr[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    int sum = 0;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int local_sum = 0;
+    for (int i = rank; i < n; i += size) {
+        local_sum += arr[i];
+    }
+    MPI_Reduce(&local_sum, &sum, 1, MPI_INT, MPI_SUM, 0,
+        MPI_COMM_WORLD);
+    if (rank == 0) {
+        printf("Sum of array elements is %d\n", sum);
+    }
+    MPI_Finalize();
 
-X_test = X_test.reshape(len(X_test),100,100,3)
-Y_test= Y_test.reshape(len(Y_test),1)
-
----
-print("Shape of X_train:", X_train.shape) #2000 train images 400 given for testing
-print("Shape of Y_train:", Y_train.shape) #imagesize is(100*100)pixels*3RGB Channels
-print("Shape of X_test:", X_test.shape)
-print("Shape of Y_test:", Y_test.shape)
-
----
-X_train[1]
-
----
-#Feature Scaling rescale to 0 and 1
-X_train=X_train/255.0
-X_test = X_test/255.0
-
-
----
-X_train[1]
-
---
-#display image
-idx=random.randint(0,len(X_train))
-plt.imshow(X_train[idx,:])
-plt.show()
----
-#Model Building
-model = Sequential([                           #layers are in seq..cnv..max..con
-    Conv2D(32, (3,3), activation ='relu', input_shape = (100,100,3)),#filter,filter size height and width,input shape for first layer
-    MaxPooling2D((2,2)),    #filtersize 
-    
-    Conv2D(32,(3,3),activation='relu'),
-    MaxPooling2D((2,2)),
-    
-    Flatten(),
-    Dense(64,activation = 'relu'), # 64 number of neurons we want in that layer
-    Dense(1,activation ='sigmoid') #we want only 1 Output as it is binary..binary so Sigmoid
-])
-
---
-#2 ways of defining model
-model= Sequential()
-model.add(Conv2D(32, (3,3), activation ='relu', input_shape = (100,100,3)))
-model.add(MaxPooling2D((2,2)))
-
-model.add(Conv2D(32,(3,3),activation='relu'))
-model.add(MaxPooling2D((2,2)))
-
-model.add(Flatten())
-model.add(Dense(64,activation = 'relu'))
-model.add(Dense(1,activation ='sigmoid'))
-
---
-model.compile(loss='binary_crossentropy',optimizer ='adam', metrics =['accuracy'])
-
----
-model.fit(X_train,Y_train,epochs=7, batch_size =64 )
-
----
-model.evaluate(X_test,Y_test)
-
---
-#Making Predictions
-idx2 = random.randint(0,len(Y_test))
-plt.imshow(X_test[idx2,:])
-plt.show()
-
-y_pred = model.predict(X_test[idx2,:].reshape(1,100,100,3))
-print(y_pred)
-y_pred = y_pred>0.5
-
-if(y_pred == 0):
-    pred ='dog'
-else:
-    pred='cat'
-print("Our model says it is a:", pred)
+ Create above  as MPISum.c
+Process of Execution :1. $sudo apt install build-essential
+                      2.$mpcc MPISum.c -o MPISum
+                      3. ./MPISum
+need to install MPI
