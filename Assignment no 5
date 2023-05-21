@@ -1,123 +1,53 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-import matplotlib as mpl
-import matplotlib.pylab as pylab
-import numpy as np
-%matplotlib inline
----
-import re
-sentences =
----
-# a. Data preparation
-# remove special characters from text
-sentences = re.sub('[^A-Za-z0-9]+', ' ', sentences)
-#sentences
---
-# remove 1 letter words like 'a'
-sentences = re.sub(r'(?:^| )\w(?:$| )', ' ', sentences).strip()
-#sentences
----
-# make all words lower case
-sentences = sentences.lower()
-#sentences
----
-# Creating the vocabulary
-words = sentences.split()
-vocab = set(words)
-vocab_size = len(vocab)
-#vocab
----
-# Indexing the Words
-word_to_ix = {word: i for i, word in enumerate(vocab)}
-ix_to_word = {i: word for i, word in enumerate(vocab)}
---
-data = []
-for i in range(2, len(words) - 2):
-    context = [words[i - 2], words[i - 1], words[i + 1], words[i + 2]]
-    target = words[i]
-    data.append((context, target))
-print(data[:5])
----
-embeddings = np.random.random_sample((vocab_size, 10))
----
-def linear(m, theta):
-    w = theta
-    return m.dot(w)
-    ---
-    def log_softmax(x):
-    e_x = np.exp(x - np.max(x))
-    return np.log(e_x / e_x.sum())
-def NLLLoss(logs, targets):
-    out = logs[range(len(targets)), targets]
-    return -out.sum()/len(out)
-def log_softmax_crossentropy_with_logits(logits,target):
-    out = np.zeros_like(logits)
-    out[np.arange(len(logits)),target] = 1
-    softmax = np.exp(logits) / np.exp(logits).sum(axis=-1,keepdims=True)
-    return (- out + softmax) / logits.shape[0]
-    ---
-    def forward(context_idxs, theta):
-    m = embeddings[context_idxs].reshape(1, -1)
-    n = linear(m, theta)
-    o = log_softmax(n)
-    return m, n, o
-    ---
-    def backward(preds, theta, target_idxs):
-    m, n, o = preds
-    dlog = log_softmax_crossentropy_with_logits(n, target_idxs)
-    dw = m.T.dot(dlog)
-    return dw
-    ---
-    def optimize(theta, grad, lr=0.03): 
-    theta -= grad * lr
-    return theta
-    ---
-    # c. Train model
-theta = np.random.uniform(-1, 1, (2 * 2 * 10, vocab_size))
-epoch_losses = {}
-for epoch in range(80):
-    losses = []
-    for context, target in data:
-        context_idxs = np.array([word_to_ix[w] for w in context])
-        preds = forward(context_idxs, theta)
-        target_idxs = np.array([word_to_ix[target]])
-        loss = NLLLoss(preds[-1], target_idxs)
-        losses.append(loss)
-        grad = backward(preds, theta, target_idxs)
-        theta = optimize(theta, grad, lr=0.03)
-    epoch_losses[epoch] = losses
-    ---
-    ix = np.arange(0,80)
-fig = plt.figure()
-fig.suptitle('Epoch/Losses', fontsize=20)
-plt.plot(ix,[epoch_losses[i][0] for i in ix])
-plt.xlabel('Epochs', fontsize=12)
-plt.ylabel('Losses', fontsize=12)
----
-def predict(words):
-    context_idxs = np.array([word_to_ix[w] for w in words])
-    preds = forward(context_idxs, theta)
-    word = ix_to_word[np.argmax(preds[-1])]
-    return word
-# (['we', 'are', 'to', 'study'], 'about')
-#predict(['we', 'are', 'about', 'study'])
+import java.io.*;
+import java.util.*;
 
----
-def accuracy():
-    wrong = 0
-    for context, target in data:
-        if(predict(context) != target):
-            wrong += 1
-    return (1 - (wrong / len(data)))
-accuracy()
+class Tok {
 
---
-# d. Output
-predict(['transmission', 'is', 'important', 'point'])
-
-
-
-
-The speed of transmission is an important point of difference between the two viruses. Influenza has a shorter median incubation period (the time from infection to appearance of symptoms) and a shorter serial interval (the time between successive cases) than COVID-19 virus. The serial interval for COVID-19 virus is estimated to be 5-6 days, while for influenza virus, the serial interval is 3 days. This means that influenza can spread faster than COVID-19. 
-Further, transmission in the first 3-5 days of illness, or potentially pre-symptomatic transmission –transmission of the virus before the appearance of symptoms – is a major driver of transmission for influenza. In contrast, while we are learning that there are people who can shed COVID-19 virus 24-48 hours prior to symptom onset, at present, this does not appear to be a major driver of transmission. 
-The reproductive number – the number of secondary infections generated from one infected individual – is understood to be between 2 and 2.5 for COVID-19 virus, higher than for influenza. However, estimates for both COVID-19 and influenza viruses are very context and time-specific, making direct comparisons more difficult.  """
+    public static void main(String args[]) throws Throwable {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Enter the num of nodes:");
+        int n = scan.nextInt();
+        int m = n - 1;
+        // Decides the number of nodes forming the ring
+        int token = 0;
+        int ch = 0, flag = 0;
+        for (int i = 0; i < n; i++) {
+            System.out.print(" " + i);
+        }
+        System.out.println(" " + 0);
+        do{
+            System.out.println("Enter sender:");
+            int s = scan.nextInt();
+            System.out.println("Enter receiver:");
+            int r = scan.nextInt();
+            System.out.println("Enter Data:");
+            int a;
+            a = scan.nextInt();       
+            System.out.print("Token passing:");
+            for (int i = token, j = token; (i % n) != s; i++, j = (j + 1) % n) {
+                System.out.print(" " + j + "->");
+            }
+            System.out.println(" " + s);
+            System.out.println("Sender " + s + " sending data: " + a);
+            for (int i = s + 1; i != r; i = (i + 1) % n) {
+                System.out.println("data  " + a + " forwarded by " + i);
+            }
+            System.out.println("Receiver " + r + " received data: " + a +"\n");
+            token = s;
+            do{	
+                try {
+                    if( flag == 1)
+			System.out.print("Invalid Input!!...");
+                    System.out.print("Do you want to send again?? enter 1 for Yes and 0 for No : ");
+                    ch = scan.nextInt();
+                    if( ch != 1 && ch != 0 )
+			flag = 1;
+                    else
+			flag = 0;                    
+                } catch (InputMismatchException e){
+                    System.out.println("Invalid Input");
+                }
+            }while( ch != 1 && ch != 0 ); 
+        }while( ch == 1 );            
+    }
+}
