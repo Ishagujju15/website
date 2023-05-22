@@ -1,0 +1,40 @@
+project name (isha)- server(glassfish)-java ee 5-
+
+right click on isha -new-web services
+
+web services name - Addition-->Package - addition-->finish
+
+on web services-->addition-->hellostring-->backspace @webmethod to return
+
+in addition.java-->design-->add operations-->
+
+in source changes will happen then,
+change return null; to --> return a+b;
+
+go on isha right click-->clean and build-->
+again right click-->deploy
+
+web service-->addition-->right click--> test web service
+
+in local host-->link of wsdl file -->copy paste it
+
+new- project- java web- web application -next- project name(isha client)
+
+ishaclient-new-web service client-wsdl url (copy paste it)
+
+in index.jsp
+<body>
+<form action ="index.jsp">
+<input type="text" name="a">
+<br>
+<input type="text" name="b">
+<br>
+<input type="submit" value="add">
+
+then right click-web service client resources-call web services opn
+
+String a = request.getParameter("a");
+String b = request.getParameter("b");
+
+int aa = Interger.parseInt(a);
+int bb = Interger.parseInt(bb);
