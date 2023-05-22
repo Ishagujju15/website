@@ -58,3 +58,19 @@ Working:1. Open Terminal..ls
 5. Start the RMI Registry on the Server Machine using ..rmiregistry..
 6. Start the Server using ..java AddServer.. in new terminal
 7.Start the Client java AddClient servername/ip_address.... java AddClient 127.0.0.1 4 5
+
+cd Desktop/RMI
+ls
+javac *.java--> .class file
+rmic AddServerImpl--> stub file
+rmiregistry--> prepare
+ 
+ add a folder of client(client +intf+stub) and server(all 4 server)
+server new terminal:
+cd Desktop/RMI/Server
+java AddServer
+
+client new terminal:
+cd Desktop/RMI/Client
+java AddClient 127.0.0.1 5 4
+
